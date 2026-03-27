@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Build message history for Claude
-  const history = conversation.messages.map((m) => ({
+  const history = conversation.messages.map((m: { role: string; content: string }) => ({
     role: m.role === "USER" ? ("user" as const) : ("assistant" as const),
     content: m.content,
   }));
