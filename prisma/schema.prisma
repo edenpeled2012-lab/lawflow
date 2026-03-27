@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  firmName  String?
+  createdAt DateTime @default(now())
+  clients   Client[]
+}
+
+model Client {
+  id           String       @id @default(cuid())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  fullName     String?
+  idNumber     String?
+  phone        String?
+  email        String?
+  caseType     CaseType?
+  caseSummary  String?
+  urgency      Urgency      @default(NORMAL)
+  status       ClientStatus @default(PENDING)
+  lawyerId     String
+  lawyer       User         @relation(fields: [lawyerId], references: [id])
+  conversation Conversation?
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  completed Boolean   @default(false)
+  clientId  String    @unique
+  client    Client    @relation(fields: [clientId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  role           MessageRole
+  content        String
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+enum CaseType {
+  FAMILY
+  CRIMINAL
+  TORT
+  REAL_ESTATE
+  LABOR
+  CONTRACT
+}
+
+enum ClientStatus {
+  PENDING
+  IN_REVIEW
+  ACTIVE
+  CLOSED
+}
+
+enum Urgency {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
